@@ -12,7 +12,7 @@ import data_manager
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--stock_code', nargs='+')
-    parser.add_argument('--ver', choices=['v1', 'v2'], default='v2')
+    parser.add_argument('--ver', choices=['v1', 'v2', 'v3'], default='v3')
     parser.add_argument('--rl_method', 
         choices=['dqn', 'pg', 'ac', 'a2c', 'a3c', 'monkey'])
     parser.add_argument('--net', 
@@ -32,8 +32,8 @@ if __name__ == '__main__':
     parser.add_argument('--policy_network_name')
     parser.add_argument('--reuse_models', action='store_true')
     parser.add_argument('--learning', action='store_true')
-    parser.add_argument('--start_date', default='20170101')
-    parser.add_argument('--end_date', default='20171231')
+    parser.add_argument('--start_date', default='20200101')
+    parser.add_argument('--end_date', default='20201231')
     args = parser.parse_args()
 
     # Keras Backend 설정
@@ -94,9 +94,7 @@ if __name__ == '__main__':
     for stock_code in args.stock_code:
         # 차트 데이터, 학습 데이터 준비
         chart_data, training_data = data_manager.load_data(
-            os.path.join(settings.BASE_DIR, 
-            'data/{}/{}.csv'.format(args.ver, stock_code)), 
-            args.start_date, args.end_date, ver=args.ver)
+            stock_code, args.start_date, args.end_date, ver=args.ver)
         
         # 최소/최대 투자 단위 설정
         min_trading_unit = max(int(100000 / chart_data.iloc[-1]['close']), 1)

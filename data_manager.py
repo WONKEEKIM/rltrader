@@ -1,5 +1,9 @@
+import os
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import StandardScaler
+
+import settings
 
 
 COLUMNS_CHART_DATA = ['date', 'open', 'high', 'low', 'close', 'volume']
@@ -45,6 +49,23 @@ COLUMNS_TRAINING_DATA_V2 = [
     'bond_k3y_ma60_ratio', 'bond_k3y_ma120_ratio'
 ]
 
+COLUMNS_TRAINING_DATA_V3 = [
+    'per', 'pbr', 'roe',
+    'open_lastclose_ratio', 'high_close_ratio', 'low_close_ratio',
+    'diffratio', 'volume_lastvolume_ratio',
+    'close_ma5_ratio', 'volume_ma5_ratio',
+    'close_ma10_ratio', 'volume_ma10_ratio',
+    'close_ma20_ratio', 'volume_ma20_ratio',
+    'close_ma60_ratio', 'volume_ma60_ratio',
+    'close_ma120_ratio', 'volume_ma120_ratio',
+    'market_kospi_ma5_ratio', 'market_kospi_ma20_ratio', 
+    'market_kospi_ma60_ratio', 'market_kospi_ma120_ratio', 
+    'bond_k3y_ma5_ratio', 'bond_k3y_ma20_ratio', 
+    'bond_k3y_ma60_ratio', 'bond_k3y_ma120_ratio',
+    'ind', 'ind_diff', 'ind_ma5', 'ind_ma10', 'ind_ma20', 'ind_ma60', 'ind_ma120',
+    'inst', 'inst_diff', 'inst_ma5', 'inst_ma10', 'inst_ma20', 'inst_ma60', 'inst_ma120',
+    'foreign', 'foreign_diff', 'foreign_ma5', 'foreign_ma10', 'foreign_ma20', 'foreign_ma60', 'foreign_ma120',
+]
 
 def preprocess(data, ver='v1'):
     windows = [5, 10, 20, 60, 120]
@@ -110,10 +131,14 @@ def preprocess(data, ver='v1'):
     return data
 
 
-def load_data(fpath, date_from, date_to, ver='v2'):
+def load_data(code, date_from, date_to, ver='v2'):
+    if ver == 'v3':
+        return load_data_v3(code, date_from, date_to)
+
     header = None if ver == 'v1' else 0
-    data = pd.read_csv(fpath, thousands=',', header=header, 
-        converters={'date': lambda x: str(x)})
+    data = pd.read_csv(
+        os.path.join(settings.BASE_DIR, 'data/{}/{}.csv'.format(args.ver, stock_code)),
+        thousands=',', header=header, converters={'date': lambda x: str(x)})
 
     if ver == 'v1':
         data.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
@@ -145,5 +170,30 @@ def load_data(fpath, date_from, date_to, ver='v2'):
         training_data = training_data.apply(np.tanh)
     else:
         raise Exception('Invalid version.')
+    
+    return chart_data, training_data
+
+
+def load_data_v3(code, date_from, date_to):
+    df = None
+    for filename in os.listdir('D:\\dev\\rltrader\\data\\v3'):
+        if filename.startswith(code):
+            df = pd.read_csv(os.path.join('D:\\dev\\rltrader\\data\\v3', filename), thousands=',', header=0, converters={'date': lambda x: str(x)})
+
+    # 날짜 오름차순 정렬
+    df = df.sort_values(by='date').reset_index()
+
+    # 기간 필터링
+    df['date'] = df['date'].str.replace('-', '')
+    df = df[(df['date'] >= date_from) & (df['date'] <= date_to)]
+    df = df.dropna()
+
+    # 차트 데이터 분리
+    chart_data = df[COLUMNS_CHART_DATA]
+
+    # 학습 데이터 분리
+    training_data = df[COLUMNS_TRAINING_DATA_V3]
+    scaler = StandardScaler()
+    training_data = pd.DataFrame(scaler.fit_transform(training_data.values), columns=COLUMNS_TRAINING_DATA_V3)
     
     return chart_data, training_data

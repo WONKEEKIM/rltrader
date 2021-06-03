@@ -74,7 +74,7 @@ class DNN(Network):
             kernel_initializer='random_normal')(output)
         self.model = Model(inp, output)
         self.model.compile(
-            optimizer=SGD(lr=self.lr), loss=self.loss)
+            optimizer=SGD(learning_rate=self.lr), loss=self.loss)
 
     @staticmethod
     def get_network_head(inp):
@@ -122,7 +122,7 @@ class LSTMNetwork(Network):
             kernel_initializer='random_normal')(output)
         self.model = Model(inp, output)
         self.model.compile(
-            optimizer=SGD(lr=self.lr), loss=self.loss)
+            optimizer=SGD(learning_rate=self.lr), loss=self.loss)
 
     @staticmethod
     def get_network_head(inp):
@@ -171,7 +171,7 @@ class CNN(Network):
             kernel_initializer='random_normal')(output)
         self.model = Model(inp, output)
         self.model.compile(
-            optimizer=SGD(lr=self.lr), loss=self.loss)
+            optimizer=SGD(learning_rate=self.lr), loss=self.loss)
 
     @staticmethod
     def get_network_head(inp):

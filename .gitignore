@@ -108,3 +108,6 @@ venv.bak/
 /etc/
 /.idea/
 /.vscode/
+/data/v3/
+/nb/
+note.md
