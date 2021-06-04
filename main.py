@@ -18,8 +18,8 @@ if __name__ == '__main__':
     parser.add_argument('--net', 
         choices=['dnn', 'lstm', 'cnn', 'monkey'], default='dnn')
     parser.add_argument('--num_steps', type=int, default=1)
-    parser.add_argument('--lr', type=float, default=0.01)
-    parser.add_argument('--discount_factor', type=float, default=0.9)
+    parser.add_argument('--lr', type=float, default=0.001)
+    parser.add_argument('--discount_factor', type=float, default=0.99)
     parser.add_argument('--start_epsilon', type=float, default=0)
     parser.add_argument('--balance', type=int, default=10000000)
     parser.add_argument('--num_epoches', type=int, default=100)
@@ -74,15 +74,15 @@ if __name__ == '__main__':
             'models/{}.h5'.format(args.value_network_name))
     else:
         value_network_path = os.path.join(
-            output_path, '{}_{}_value_{}.h5'.format(
-                args.rl_method, args.net, args.output_name))
+            output_path, '{}_{}_{}_value.h5'.format(
+                args.output_name, args.rl_method, args.net))
     if args.policy_network_name is not None:
         policy_network_path = os.path.join(settings.BASE_DIR, 
             'models/{}.h5'.format(args.policy_network_name))
     else:
         policy_network_path = os.path.join(
-            output_path, '{}_{}_policy_{}.h5'.format(
-                args.rl_method, args.net, args.output_name))
+            output_path, '{}_{}_{}_policy.h5'.format(
+                args.output_name, args.rl_method, args.net))
 
     common_params = {}
     list_stock_code = []

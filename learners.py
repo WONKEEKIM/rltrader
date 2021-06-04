@@ -160,8 +160,7 @@ class ReinforcementLearner:
         self.environment.observe()
         if len(self.training_data) > self.training_data_idx + 1:
             self.training_data_idx += 1
-            self.sample = self.training_data.iloc[
-                self.training_data_idx].tolist()
+            self.sample = self.training_data.iloc[self.training_data_idx].tolist()
             self.sample.extend(self.agent.get_states())
             return self.sample
         return None
@@ -393,6 +392,43 @@ class ReinforcementLearner:
                 self.policy_network_path is not None:
             self.policy_network.save_model(self.policy_network_path)
 
+    def predict(self, balance=10000000):
+        # 에이전트 초기 자본금 설정
+        self.agent.set_balance(balance)
+        
+        # 에이전트 초기화
+        self.agent.reset()
+
+        # step 샘플을 만들기 위한 큐
+        q_sample = collections.deque(maxlen=self.num_steps)
+        
+        result = []
+        while True:
+            # 샘플 생성
+            next_sample = self.build_sample()
+            if next_sample is None:
+                break
+
+            # num_steps만큼 샘플 저장
+            q_sample.append(next_sample)
+            if len(q_sample) < self.num_steps:
+                continue
+
+            # 가치, 정책 신경망 예측
+            pred_value = None
+            pred_policy = None
+            if self.value_network is not None:
+                pred_value = self.value_network.predict(list(q_sample))
+            if self.policy_network is not None:
+                pred_policy = self.policy_network.predict(list(q_sample))
+            
+            # 신경망에 의한 행동 결정
+            action, confidence, _ = self.agent.decide_action(pred_value, pred_policy, 0)
+            
+            result.append((action, confidence))
+
+        return result
+
 
 class DQNLearner(ReinforcementLearner):
     def __init__(self, *args, value_network_path=None, **kwargs):
@@ -506,8 +542,7 @@ class A2CLearner(ActorCriticLearner):
         y_policy = np.full((batch_size, self.agent.NUM_ACTIONS), .5)
         value_max_next = 0
         reward_next = self.memory_reward[-1]
-        for i, (sample, action, value, policy, reward) \
-            in enumerate(memory):
+        for i, (sample, action, value, policy, reward) in enumerate(memory):
             x[i] = sample
             r = delayed_reward + reward_next - reward * 2
             y_value[i, action] = r + discount_factor * value_max_next
