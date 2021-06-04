@@ -365,7 +365,8 @@ class ReinforcementLearner:
                     self.loss, elapsed_time_epoch))
 
             # 에포크 관련 정보 가시화
-            self.visualize(epoch_str, num_epoches, epsilon)
+            if num_epoches == 1 or (epoch + 1) % 10 == 0:
+                self.visualize(epoch_str, num_epoches, epsilon)
 
             # 학습 관련 정보 갱신
             max_portfolio_value = max(
@@ -413,7 +414,7 @@ class DQNLearner(ReinforcementLearner):
         for i, (sample, action, value, reward) in enumerate(memory):
             x[i] = sample
             y_value[i] = value
-            r = (delayed_reward + reward_next - reward * 2) * 100
+            r = delayed_reward + reward_next - reward * 2
             y_value[i, action] = r + discount_factor * value_max_next
             value_max_next = value.max()
             reward_next = reward
@@ -439,7 +440,7 @@ class PolicyGradientLearner(ReinforcementLearner):
         for i, (sample, action, policy, reward) in enumerate(memory):
             x[i] = sample
             y_policy[i] = policy
-            r = (delayed_reward + reward_next - reward * 2) * 100
+            r = delayed_reward + reward_next - reward * 2
             y_policy[i, action] = sigmoid(r)
             reward_next = reward
         return x, None, y_policy
@@ -480,7 +481,7 @@ class ActorCriticLearner(ReinforcementLearner):
             x[i] = sample
             y_value[i] = value
             y_policy[i] = policy
-            r = (delayed_reward + reward_next - reward * 2) * 100
+            r = delayed_reward + reward_next - reward * 2
             y_value[i, action] = r + discount_factor * value_max_next
             y_policy[i, action] = sigmoid(value[action])
             value_max_next = value.max()
@@ -508,7 +509,7 @@ class A2CLearner(ActorCriticLearner):
         for i, (sample, action, value, policy, reward) \
             in enumerate(memory):
             x[i] = sample
-            r = (delayed_reward + reward_next - reward * 2) * 100
+            r = delayed_reward + reward_next - reward * 2
             y_value[i, action] = r + discount_factor * value_max_next
             advantage = value[action] - value.mean()
             y_policy[i, action] = sigmoid(advantage)
