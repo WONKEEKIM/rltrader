@@ -1,10 +1,12 @@
+import random
+
 import numpy as np
 import utils
 
 
 class Agent:
     # 에이전트 상태가 구성하는 값 개수
-    STATE_DIM = 2  # 주식 보유 비율, 포트폴리오 가치 비율
+    STATE_DIM = 3  # 주식 보유 비율, 포트폴리오 가치 비율, 평균 매수 단가 대비 등락률
 
     # 매매 수수료 및 세금
     TRADING_CHARGE = 0.00015  # 거래 수수료 0.015%
@@ -52,6 +54,7 @@ class Agent:
         # Agent 클래스의 상태
         self.ratio_hold = 0  # 주식 보유 비율
         self.ratio_portfolio_value = 0  # 포트폴리오 가치 비율
+        self.avg_buy_price = 0  # 주당 매수 단가
 
     def reset(self):
         self.balance = self.initial_balance
@@ -67,7 +70,7 @@ class Agent:
 
     def reset_exploration(self, alpha=None):
         if alpha is None:
-            alpha = np.random.rand() / 2
+            alpha = 0
         self.exploration_base = 0.5 + alpha
 
     def set_balance(self, balance):
@@ -81,7 +84,8 @@ class Agent:
         )
         return (
             self.ratio_hold,
-            self.ratio_portfolio_value
+            self.ratio_portfolio_value,
+            (self.environment.get_price() / self.avg_buy_price) - 1 if self.avg_buy_price > 0 else 0
         )
 
     def decide_action(self, pred_value, pred_policy, epsilon):
@@ -173,6 +177,7 @@ class Agent:
             invest_amount = curr_price * (1 + self.TRADING_CHARGE) \
                 * trading_unit
             if invest_amount > 0:
+                self.avg_buy_price = (self.avg_buy_price * self.num_stocks + curr_price) / (self.num_stocks + trading_unit)  # 주당 매수 단가 갱신
                 self.balance -= invest_amount  # 보유 현금을 갱신
                 self.num_stocks += trading_unit  # 보유 주식 수를 갱신
                 self.num_buy += 1  # 매수 횟수 증가
@@ -188,6 +193,7 @@ class Agent:
                 1 - (self.TRADING_TAX + self.TRADING_CHARGE)) \
                     * trading_unit
             if invest_amount > 0:
+                self.avg_buy_price = (self.avg_buy_price * self.num_stocks - curr_price) / (self.num_stocks - trading_unit) if self.num_stocks > trading_unit else 0  # 주당 매수 단가 갱신
                 self.num_stocks -= trading_unit  # 보유 주식 수를 갱신
                 self.balance += invest_amount  # 보유 현금을 갱신
                 self.num_sell += 1  # 매도 횟수 증가
