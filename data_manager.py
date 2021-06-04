@@ -183,6 +183,10 @@ def load_data_v3(code, date_from, date_to):
     # 날짜 오름차순 정렬
     df = df.sort_values(by='date').reset_index()
 
+    # 표준화
+    scaler = StandardScaler()
+    scaler.fit(df[COLUMNS_TRAINING_DATA_V3].dropna().values)
+
     # 기간 필터링
     df['date'] = df['date'].str.replace('-', '')
     df = df[(df['date'] >= date_from) & (df['date'] <= date_to)]
@@ -193,7 +197,6 @@ def load_data_v3(code, date_from, date_to):
 
     # 학습 데이터 분리
     training_data = df[COLUMNS_TRAINING_DATA_V3]
-    scaler = StandardScaler()
-    training_data = pd.DataFrame(scaler.fit_transform(training_data.values), columns=COLUMNS_TRAINING_DATA_V3)
+    training_data = pd.DataFrame(scaler.transform(training_data.values), columns=COLUMNS_TRAINING_DATA_V3)
     
     return chart_data, training_data
