@@ -436,8 +436,8 @@ class DQNLearner(ReinforcementLearner):
         reward_next = self.memory_reward[-1]
         for i, (sample, action, value, reward) in enumerate(memory):
             x[i] = sample
-            y_value[i] = value
             r = delayed_reward + reward_next - reward * 2
+            y_value[i] = value
             y_value[i, action] = r + discount_factor * value_max_next
             value_max_next = value.max()
             reward_next = reward
@@ -458,13 +458,12 @@ class PolicyGradientLearner(ReinforcementLearner):
             reversed(self.memory_reward[-batch_size:]),
         )
         x = np.zeros((batch_size, self.num_steps, self.num_features))
-        y_policy = np.full((batch_size, self.agent.NUM_ACTIONS), .5)
+        y_policy = np.zeros((batch_size, self.agent.NUM_ACTIONS))
         reward_next = self.memory_reward[-1]
         for i, (sample, action, policy, reward) in enumerate(memory):
             x[i] = sample
-            y_policy[i] = policy
             r = delayed_reward + reward_next - reward * 2
-            y_policy[i, action] = sigmoid(r)
+            y_policy[i, action] = 1 if r > 0 else 0
             reward_next = reward
         return x, None, y_policy
 
@@ -496,16 +495,14 @@ class ActorCriticLearner(ReinforcementLearner):
         )
         x = np.zeros((batch_size, self.num_steps, self.num_features))
         y_value = np.zeros((batch_size, self.agent.NUM_ACTIONS))
-        y_policy = np.full((batch_size, self.agent.NUM_ACTIONS), .5)
+        y_policy = np.zeros((batch_size, self.agent.NUM_ACTIONS))
         value_max_next = 0
         reward_next = self.memory_reward[-1]
         for i, (sample, action, value, policy, reward) in enumerate(memory):
             x[i] = sample
-            y_value[i] = value
+            r = delayed_reward + reward_next - reward * 2
             y_value[i, action] = r + discount_factor * value_max_next
-            advantage = y_value[i, action] - y_value[i, :].mean()
-            y_policy[i] = policy
-            y_policy[i, action] = sigmoid(advantage)
+            y_policy[i, action] = 1 if r > 0 else 0
             value_max_next = value.max()
             reward_next = reward
         return x, y_value, y_policy
@@ -525,17 +522,15 @@ class A2CLearner(ActorCriticLearner):
         )
         x = np.zeros((batch_size, self.num_steps, self.num_features))
         y_value = np.zeros((batch_size, self.agent.NUM_ACTIONS))
-        y_policy = np.full((batch_size, self.agent.NUM_ACTIONS), .5)
+        y_policy = np.zeros((batch_size, self.agent.NUM_ACTIONS))
         value_max_next = 0
         reward_next = self.memory_reward[-1]
         for i, (sample, action, value, policy, reward) in enumerate(memory):
             x[i] = sample
             r = delayed_reward + reward_next - reward * 2
-            y_value[i] = value
             y_value[i, action] = r + discount_factor * value_max_next
-            advantage = y_value[i, action] - y_value[i, :].mean()
-            y_policy[i] = policy
-            y_policy[i, action] = sigmoid(advantage)
+            advantage = y_value[i, action] - y_value[i].mean()
+            y_policy[i, action] = 1 if advantage > 0 else 0
             value_max_next = value.max()
             reward_next = reward
         return x, y_value, y_policy

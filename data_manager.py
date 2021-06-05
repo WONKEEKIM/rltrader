@@ -141,8 +141,7 @@ def load_data(code, date_from, date_to, ver='v2'):
     elif ver == 'v1.rich':
         training_data = data[COLUMNS_TRAINING_DATA_V1_RICH]
     elif ver == 'v2':
-        data.loc[:, ['per', 'pbr', 'roe']] = \
-            data[['per', 'pbr', 'roe']].apply(lambda x: x / 100)
+        data.loc[:, ['per', 'pbr', 'roe']] = data[['per', 'pbr', 'roe']].apply(lambda x: x / 100)
         training_data = data[COLUMNS_TRAINING_DATA_V2]
         training_data = training_data.apply(np.tanh)
     else:
