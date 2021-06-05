@@ -159,8 +159,7 @@ class Agent:
             # 매수할 단위를 판단
             trading_unit = self.decide_trading_unit(confidence)
             balance = (
-                self.balance - curr_price * (1 + self.TRADING_CHARGE) \
-                    * trading_unit
+                self.balance - curr_price * (1 + self.TRADING_CHARGE) * trading_unit
             )
             # 보유 현금이 모자랄 경우 보유 현금으로 가능한 만큼 최대한 매수
             if balance < 0:
@@ -173,8 +172,7 @@ class Agent:
                     self.min_trading_unit
                 )
             # 수수료를 적용하여 총 매수 금액 산정
-            invest_amount = curr_price * (1 + self.TRADING_CHARGE) \
-                * trading_unit
+            invest_amount = curr_price * (1 + self.TRADING_CHARGE) * trading_unit
             if invest_amount > 0:
                 self.avg_buy_price = (self.avg_buy_price * self.num_stocks + curr_price) / (self.num_stocks + trading_unit)  # 주당 매수 단가 갱신
                 self.balance -= invest_amount  # 보유 현금을 갱신
@@ -189,8 +187,7 @@ class Agent:
             trading_unit = min(trading_unit, self.num_stocks)
             # 매도
             invest_amount = curr_price * (
-                1 - (self.TRADING_TAX + self.TRADING_CHARGE)) \
-                    * trading_unit
+                1 - (self.TRADING_TAX + self.TRADING_CHARGE)) * trading_unit
             if invest_amount > 0:
                 self.avg_buy_price = (self.avg_buy_price * self.num_stocks - curr_price) / (self.num_stocks - trading_unit) if self.num_stocks > trading_unit else 0  # 주당 매수 단가 갱신
                 self.num_stocks -= trading_unit  # 보유 주식 수를 갱신
@@ -202,11 +199,9 @@ class Agent:
             self.num_hold += 1  # 홀딩 횟수 증가
 
         # 포트폴리오 가치 갱신
-        self.portfolio_value = self.balance + curr_price \
-            * self.num_stocks
+        self.portfolio_value = self.balance + curr_price * self.num_stocks
         self.profitloss = (
-            (self.portfolio_value - self.initial_balance) \
-                / self.initial_balance
+            (self.portfolio_value - self.initial_balance) / self.initial_balance
         )
         
         # 즉시 보상 - 수익률
@@ -215,11 +210,9 @@ class Agent:
         # 지연 보상 - 익절, 손절 기준
         delayed_reward = 0
         self.base_profitloss = (
-            (self.portfolio_value - self.base_portfolio_value) \
-                / self.base_portfolio_value
+            (self.portfolio_value - self.base_portfolio_value) / self.base_portfolio_value
         )
-        if self.base_profitloss > self.delayed_reward_threshold or \
-            self.base_profitloss < -self.delayed_reward_threshold:
+        if self.base_profitloss > self.delayed_reward_threshold or self.base_profitloss < -self.delayed_reward_threshold:
             # 목표 수익률 달성하여 기준 포트폴리오 가치 갱신
             # 또는 손실 기준치를 초과하여 기준 포트폴리오 가치 갱신
             self.base_portfolio_value = self.portfolio_value

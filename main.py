@@ -13,20 +13,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--stock_code', nargs='+')
     parser.add_argument('--ver', choices=['v1', 'v2', 'v3'], default='v3')
-    parser.add_argument('--rl_method', 
-        choices=['dqn', 'pg', 'ac', 'a2c', 'a3c', 'monkey'])
-    parser.add_argument('--net', 
-        choices=['dnn', 'lstm', 'cnn', 'monkey'], default='dnn')
+    parser.add_argument('--rl_method', choices=['dqn', 'pg', 'ac', 'a2c', 'a3c', 'monkey'])
+    parser.add_argument('--net', choices=['dnn', 'lstm', 'cnn', 'monkey'], default='dnn')
     parser.add_argument('--num_steps', type=int, default=1)
     parser.add_argument('--lr', type=float, default=0.001)
-    parser.add_argument('--discount_factor', type=float, default=0.99)
+    parser.add_argument('--discount_factor', type=float, default=0.9)
     parser.add_argument('--start_epsilon', type=float, default=0)
     parser.add_argument('--balance', type=int, default=10000000)
     parser.add_argument('--num_epoches', type=int, default=100)
-    parser.add_argument('--delayed_reward_threshold', 
-        type=float, default=0.05)
-    parser.add_argument('--backend', 
-        choices=['tensorflow', 'plaidml'], default='tensorflow')
+    parser.add_argument('--delayed_reward_threshold', type=float, default=0.15)
+    parser.add_argument('--backend', choices=['tensorflow', 'plaidml'], default='tensorflow')
     parser.add_argument('--output_name', default=utils.get_time_str())
     parser.add_argument('--value_network_name')
     parser.add_argument('--policy_network_name')
