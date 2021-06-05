@@ -99,8 +99,7 @@ class ReinforcementLearner:
                 shared_network=shared_network, 
                 activation=activation, loss=loss)
         if self.reuse_models and os.path.exists(self.value_network_path):
-                self.value_network.load_model(
-                    model_path=self.value_network_path)
+                self.value_network.load_model(model_path=self.value_network_path)
 
     def init_policy_network(self, shared_network=None, 
             activation='sigmoid', loss='binary_crossentropy'):
@@ -125,8 +124,7 @@ class ReinforcementLearner:
                 shared_network=shared_network, 
                 activation=activation, loss=loss)
         if self.reuse_models and os.path.exists(self.policy_network_path):
-            self.policy_network.load_model(
-                model_path=self.policy_network_path)
+            self.policy_network.load_model(model_path=self.policy_network_path)
 
     def reset(self):
         self.sample = None

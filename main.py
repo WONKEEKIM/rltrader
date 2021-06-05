@@ -66,19 +66,13 @@ if __name__ == '__main__':
     value_network_path = ''
     policy_network_path = ''
     if args.value_network_name is not None:
-        value_network_path = os.path.join(settings.BASE_DIR, 
-            'models/{}.h5'.format(args.value_network_name))
+        value_network_path = os.path.join(settings.BASE_DIR, 'models/{}.h5'.format(args.value_network_name))
     else:
-        value_network_path = os.path.join(
-            output_path, '{}_{}_{}_value.h5'.format(
-                args.output_name, args.rl_method, args.net))
+        value_network_path = os.path.join(output_path, '{}_{}_{}_value.h5'.format(args.output_name, args.rl_method, args.net))
     if args.policy_network_name is not None:
-        policy_network_path = os.path.join(settings.BASE_DIR, 
-            'models/{}.h5'.format(args.policy_network_name))
+        policy_network_path = os.path.join(settings.BASE_DIR, 'models/{}.h5'.format(args.policy_network_name))
     else:
-        policy_network_path = os.path.join(
-            output_path, '{}_{}_{}_policy.h5'.format(
-                args.output_name, args.rl_method, args.net))
+        policy_network_path = os.path.join(output_path, '{}_{}_{}_policy.h5'.format(args.output_name, args.rl_method, args.net))
 
     common_params = {}
     list_stock_code = []
